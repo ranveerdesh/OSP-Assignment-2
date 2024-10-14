@@ -1,92 +1,77 @@
 #include "allocator.h"
 #include <cstdlib>
-#include <cstring>
-#include <unistd.h>
+#include <iostream>
 #include <algorithm>
+#include <fstream>
+#include <unistd.h>
 
-enum AllocationStrategy {
-    FIRST_FIT,
-    BEST_FIT
-};
 
-AllocationStrategy strategy = FIRST_FIT;
+// Global variables
+std::vector<Allocation> allocatedList;
+std::vector<Allocation> freeList;
 
-// Define global variables here
-std::vector<Allocation> allocatedList; // Define here
-std::vector<Allocation> freeList; // Define here
-
-// Initialize free list with predefined sizes
-void initializeFreeList() {
-    freeList.push_back({32, nullptr});
-    freeList.push_back({64, nullptr});
-    freeList.push_back({128, nullptr});
-    freeList.push_back({256, nullptr});
-    freeList.push_back({512, nullptr});
+void setStrategy(const std::string& strategy) {
+    // You can implement logic for different strategies if needed.
 }
 
-// Function to allocate memory
-void *alloc(std::size_t chunk_size) {
+void initializeFreeList() {
+    // Initialize the free list with predefined sizes
+    std::size_t sizes[] = {32, 64, 128, 256, 512};
+    for (auto size : sizes) {
+        void* space = sbrk(size);
+        if (space == (void*) -1) {
+            std::cerr << "Error: Unable to allocate memory using sbrk" << std::endl;
+            exit(1);
+        }
+        freeList.push_back({size, space});
+    }
+}
+
+void* alloc(std::size_t chunk_size) {
     for (auto it = freeList.begin(); it != freeList.end(); ++it) {
         if (it->size >= chunk_size) {
-            void *chunk = sbrk(it->size);
-            if (chunk == (void *)-1) {
-                std::cerr << "Memory allocation failed!" << std::endl;
-                return nullptr;
-            }
-
-            Allocation allocation = {it->size, chunk};
-            allocatedList.push_back(allocation);
+            // Use the first fit strategy
+            Allocation alloc = *it;
             freeList.erase(it);
-            return chunk;
+            allocatedList.push_back(alloc);
+            return alloc.space;
         }
     }
 
-    void *chunk = sbrk(chunk_size);
-    if (chunk == (void *)-1) {
-        std::cerr << "Memory allocation failed!" << std::endl;
+    // If no suitable free chunk is found, request more memory
+    void* space = sbrk(chunk_size);
+    if (space == (void*) -1) {
+        std::cerr << "Error: Unable to allocate memory using sbrk" << std::endl;
         return nullptr;
     }
-
-    Allocation allocation = {chunk_size, chunk};
-    allocatedList.push_back(allocation);
-    return chunk;
+    
+    allocatedList.push_back({chunk_size, space});
+    return space;
 }
 
-// Function to deallocate memory
-void dealloc(void *chunk) {
+void dealloc(void* chunk) {
     auto it = std::find_if(allocatedList.begin(), allocatedList.end(), [chunk](const Allocation& alloc) {
         return alloc.space == chunk;
     });
 
-    if (it == allocatedList.end()) {
-        std::cerr << "Error: Attempting to deallocate a chunk that was not allocated!" << std::endl;
-        exit(EXIT_FAILURE);
+    if (it != allocatedList.end()) {
+        Allocation alloc = *it;
+        allocatedList.erase(it);
+        freeList.push_back(alloc);
+    } else {
+        std::cerr << "Error: Attempting to deallocate non-existent chunk" << std::endl;
+        exit(1);
     }
-
-    freeList.push_back(*it);
-    allocatedList.erase(it);
 }
 
-// Function to print memory lists
 void printMemoryLists() {
     std::cout << "Allocated List:" << std::endl;
-    for (const auto &alloc : allocatedList) {
+    for (const auto& alloc : allocatedList) {
         std::cout << "Address: " << alloc.space << ", Size: " << alloc.size << std::endl;
     }
-
+    
     std::cout << "Free List:" << std::endl;
-    for (const auto &free : freeList) {
+    for (const auto& free : freeList) {
         std::cout << "Address: " << free.space << ", Size: " << free.size << std::endl;
-    }
-}
-
-// Set the allocation strategy
-void setStrategy(const std::string& strat) {
-    if (strat == "firstfit") {
-        strategy = FIRST_FIT;
-    } else if (strat == "bestfit") {
-        strategy = BEST_FIT;
-    } else {
-        std::cerr << "Invalid strategy: " << strat << std::endl;
     }
 }
