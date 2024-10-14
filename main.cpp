@@ -34,17 +34,18 @@ int main(int argc, char *argv[]) {
     while (dataFile >> operation) {
         if (operation == "alloc") {
             // Read the size for allocation
-            dataFile >> size;
-            if (dataFile.fail()) {
-                std::cerr << "Error reading size for allocation." << std::endl;
-                break;
-            }
-            // Attempt to allocate memory of the specified size
-            void* allocatedChunk = alloc(size);
-            if (allocatedChunk) {
-                std::cout << "Allocated " << size << " bytes at address " << allocatedChunk << std::endl;
+            if (dataFile >> size) {
+                // Attempt to allocate memory of the specified size
+                void* allocatedChunk = alloc(size);
+                if (allocatedChunk) {
+                    std::cout << "Allocated " << size << " bytes at address " << allocatedChunk << std::endl;
+                } else {
+                    std::cerr << "Allocation failed for " << size << " bytes." << std::endl;
+                }
             } else {
-                std::cerr << "Allocation failed for " << size << " bytes." << std::endl;
+                std::cerr << "Error reading size for allocation. Skipping line." << std::endl;
+                dataFile.clear(); // Clear fail state
+                dataFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignore the rest of the line
             }
         } else if (operation == "dealloc") {
             // Deallocate the last allocated chunk, if it exists
@@ -57,6 +58,8 @@ int main(int argc, char *argv[]) {
             }
         } else {
             std::cerr << "Unknown operation: " << operation << std::endl;
+            dataFile.clear(); // Clear fail state
+            dataFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignore the rest of the line
         }
     }
 
