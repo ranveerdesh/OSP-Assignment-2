@@ -32,6 +32,11 @@ int main(int argc, char *argv[]) {
 
     // Process commands from the data file
     while (dataFile >> operation) {
+        // Remove any trailing colon from the operation
+        if (operation.back() == ':') {
+            operation.pop_back(); // Remove the colon
+        }
+
         std::cout << "Read operation: " << operation << std::endl;  // Debug output
 
         // Check for "alloc" operation
