@@ -32,6 +32,7 @@ int main(int argc, char *argv[]) {
 
     // Process commands from the data file
     while (dataFile >> operation) {
+        // Check for "alloc" operation
         if (operation == "alloc") {
             // Read the size for allocation
             if (dataFile >> size) {
@@ -44,10 +45,13 @@ int main(int argc, char *argv[]) {
                 }
             } else {
                 std::cerr << "Error reading size for allocation. Skipping line." << std::endl;
-                dataFile.clear(); // Clear fail state
-                dataFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignore the rest of the line
+                dataFile.clear(); // Clear the fail state
+                std::string skipLine;
+                std::getline(dataFile, skipLine); // Skip to the end of the line
             }
-        } else if (operation == "dealloc") {
+        } 
+        // Check for "dealloc" operation
+        else if (operation == "dealloc") {
             // Deallocate the last allocated chunk, if it exists
             if (!allocatedList.empty()) {
                 void* lastAllocatedChunk = allocatedList.back().memoryAddress; // Get the last allocated chunk
@@ -56,10 +60,14 @@ int main(int argc, char *argv[]) {
             } else {
                 std::cerr << "No allocated chunks to deallocate." << std::endl;
             }
-        } else {
+        } 
+        // Handle unknown operations
+        else {
             std::cerr << "Unknown operation: " << operation << std::endl;
-            dataFile.clear(); // Clear fail state
-            dataFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignore the rest of the line
+            // Clear the fail state and skip to the end of the line
+            dataFile.clear();
+            std::string skipLine;
+            std::getline(dataFile, skipLine);
         }
     }
 
