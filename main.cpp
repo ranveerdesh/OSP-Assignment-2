@@ -1,47 +1,44 @@
 #include "allocator.h"
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <string>
-#include <vector>
 
-int main(int argc, char* argv[]) {
-    if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " <datafile>" << std::endl;
-        return 1;
+void processAllocations(const std::string &filename);
+
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        std::cerr << "Usage: " << argv[0] << " <strategy> <datafile>" << std::endl;
+        return EXIT_FAILURE;
     }
 
-    initMemoryManagement(); // Initialize the memory management system
+    setStrategy(argv[1]);
+    processAllocations(argv[2]);
+    printMemoryLists();
 
-    // Read the data file and process allocations and deallocations
-    std::ifstream dataFile(argv[1]);
-    if (!dataFile.is_open()) {
-        std::cerr << "Error: Could not open file " << argv[1] << std::endl;
-        return 1;
+    return EXIT_SUCCESS;
+}
+
+void processAllocations(const std::string &filename) {
+    std::ifstream infile(filename);
+    std::string line;
+
+    if (!infile) {
+        std::cerr << "Error opening file: " << filename << std::endl;
+        return;
     }
 
-    std::string command;
-    std::vector<void*> allocatedChunks; // To track allocated chunks for deallocation
-    while (dataFile >> command) {
+    while (std::getline(infile, line)) {
         std::size_t size;
-        dataFile >> size;
-
-        if (command == "alloc") {
-            void *chunk = alloc(size);
-            if (chunk) {
-                allocatedChunks.push_back(chunk); // Keep track of allocated chunks
-            }
-        } else if (command == "dealloc") {
-            if (!allocatedChunks.empty()) {
-                void *chunk = allocatedChunks.back();
-                dealloc(chunk); // Deallocate the last allocated chunk
-                allocatedChunks.pop_back(); // Remove from tracking list
-            } else {
-                std::cerr << "Error: No allocated chunks to deallocate!" << std::endl;
+        if (line.substr(0, 5) == "alloc") {
+            size = std::stoul(line.substr(6));
+            alloc(size);
+        } else if (line.substr(0, 6) == "dealloc") {
+            if (!allocatedList.empty()) {
+                void *chunk = allocatedList.back().space; // Get the last allocated chunk
+                dealloc(chunk);
             }
         }
     }
 
-    // Print the memory lists
-    printMemoryLists();
-    return 0;
+    infile.close();
 }

@@ -5,17 +5,19 @@
 #include <iostream>
 #include <list>
 
-// Struct to represent memory allocations
-struct allocation {
-    std::size_t size;  // Size of the allocated chunk
-    void *space;       // Pointer to the allocated memory
+struct Allocation {
+    std::size_t size;
+    void *space;
 };
 
-// Function declarations
-void initMemoryManagement();
-void* alloc(std::size_t chunk_size);
+// Global variables to track allocated and free memory
+std::list<Allocation> allocatedList; // List of allocated chunks
+std::list<Allocation> freeList;      // List of free chunks
+
+void *alloc(std::size_t chunk_size);
 void dealloc(void *chunk);
 void printMemoryLists();
-void setAllocationStrategy(const std::string& strategy); // Set allocation strategy (first fit or best fit)
+void setStrategy(const std::string& strategy);
+void initializeFreeList();
 
 #endif // ALLOCATOR_H
