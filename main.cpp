@@ -31,8 +31,14 @@ int main(int argc, char *argv[]) {
     std::size_t size;
 
     // Process commands from the data file
-    while (dataFile >> operation >> size) {
+    while (dataFile >> operation) {
         if (operation == "alloc") {
+            // Read the size for allocation
+            dataFile >> size;
+            if (dataFile.fail()) {
+                std::cerr << "Error reading size for allocation." << std::endl;
+                break;
+            }
             // Attempt to allocate memory of the specified size
             void* allocatedChunk = alloc(size);
             if (allocatedChunk) {
@@ -49,6 +55,8 @@ int main(int argc, char *argv[]) {
             } else {
                 std::cerr << "No allocated chunks to deallocate." << std::endl;
             }
+        } else {
+            std::cerr << "Unknown operation: " << operation << std::endl;
         }
     }
 
