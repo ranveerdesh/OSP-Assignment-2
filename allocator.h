@@ -1,29 +1,21 @@
 #ifndef ALLOCATOR_H
 #define ALLOCATOR_H
 
-#include <iostream> // Include for std::cout and std::cerr
-#include <vector>   // Include if you are using std::vector
+#include <cstddef>
+#include <iostream>
+#include <list>
 
-// Structure to represent an allocation
-struct Allocation {
-    std::size_t size; // Size of the allocated memory
-    void *space;      // Pointer to the allocated memory
+// Struct to represent memory allocations
+struct allocation {
+    std::size_t size;  // Size of the allocated chunk
+    void *space;       // Pointer to the allocated memory
 };
 
-// Node structure for linked lists
-struct Node {
-    Allocation alloc; // Change 'allocation' to 'alloc'
-    Node *next;      // Pointer to the next node
-};
-
-// Global variables
-extern Node *allocatedList; // List of allocated memory chunks
-extern Node *freeList;      // List of free memory chunks
-
-// Function prototypes
-void initMemoryManagement(); // Initialize memory management
-void* alloc(std::size_t chunk_size); // Allocate memory
-void dealloc(void* chunk); // Deallocate memory
-void printMemoryLists(); // Print the lists of allocated and free chunks
+// Function declarations
+void initMemoryManagement();
+void* alloc(std::size_t chunk_size);
+void dealloc(void *chunk);
+void printMemoryLists();
+void setAllocationStrategy(const std::string& strategy); // Set allocation strategy (first fit or best fit)
 
 #endif // ALLOCATOR_H
