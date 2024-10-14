@@ -32,10 +32,13 @@ int main(int argc, char *argv[]) {
 
     // Process commands from the data file
     while (dataFile >> operation) {
+        std::cout << "Read operation: " << operation << std::endl;  // Debug output
+
         // Check for "alloc" operation
         if (operation == "alloc") {
             // Read the size for allocation
             if (dataFile >> size) {
+                std::cout << "Allocating " << size << " bytes." << std::endl;  // Debug output
                 // Attempt to allocate memory of the specified size
                 void* allocatedChunk = alloc(size);
                 if (allocatedChunk) {
@@ -52,6 +55,7 @@ int main(int argc, char *argv[]) {
         } 
         // Check for "dealloc" operation
         else if (operation == "dealloc") {
+            std::cout << "Deallocating last allocated chunk." << std::endl;  // Debug output
             // Deallocate the last allocated chunk, if it exists
             if (!allocatedList.empty()) {
                 void* lastAllocatedChunk = allocatedList.back().memoryAddress; // Get the last allocated chunk
