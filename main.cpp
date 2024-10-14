@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
             }
         } else if (operation == "dealloc") {
             if (!allocatedList.empty()) {
-                void* lastChunk = allocatedList.back().space; // Get the last allocated chunk
+                void* lastChunk = allocatedList.back().space;
                 dealloc(lastChunk);
                 std::cout << "Deallocated chunk at " << lastChunk << std::endl;
             }

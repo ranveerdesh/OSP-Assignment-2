@@ -3,7 +3,8 @@
 
 #include <cstddef>
 #include <iostream>
-#include <vector>
+#include <list>
+#include <string>
 
 // Struct for memory allocation
 struct Allocation {
@@ -13,8 +14,9 @@ struct Allocation {
 };
 
 // Global variables
-extern std::vector<Allocation> allocatedList;
-extern std::vector<Allocation> freeList;
+extern std::list<Allocation> allocatedList;
+extern std::list<Allocation> freeList;
+extern std::string currentStrategy;
 
 // Function prototypes
 void* alloc(std::size_t chunk_size);
