@@ -7,8 +7,9 @@
 
 // Struct for memory allocation
 struct Allocation {
-    std::size_t size;
-    void *space;
+    std::size_t totalSize;
+    std::size_t usedSize;
+    void* space;
 };
 
 // Global variables

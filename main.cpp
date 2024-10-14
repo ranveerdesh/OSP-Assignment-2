@@ -33,13 +33,13 @@ int main(int argc, char *argv[]) {
     // Process the data file
     while (file >> operation >> size) {
         if (operation == "alloc") {
-            void *chunk = alloc(size);
+            void* chunk = alloc(size);
             if (chunk) {
                 std::cout << "Allocated " << size << " bytes at " << chunk << std::endl;
             }
         } else if (operation == "dealloc") {
             if (!allocatedList.empty()) {
-                void *lastChunk = allocatedList.back().space; // Get the last allocated chunk
+                void* lastChunk = allocatedList.back().space; // Get the last allocated chunk
                 dealloc(lastChunk);
                 std::cout << "Deallocated chunk at " << lastChunk << std::endl;
             }
