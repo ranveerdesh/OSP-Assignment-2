@@ -1,44 +1,55 @@
-#include "allocator.h"
-#include <fstream>
 #include <iostream>
+#include <fstream>
 #include <string>
-
-void processAllocations(const std::string &filename);
+#include "allocator.h"
 
 int main(int argc, char *argv[]) {
+    // Check the number of command-line arguments
     if (argc != 3) {
         std::cerr << "Usage: " << argv[0] << " <strategy> <datafile>" << std::endl;
-        return EXIT_FAILURE;
+        return 1;
     }
 
-    setStrategy(argv[1]);
-    processAllocations(argv[2]);
-    printMemoryLists();
+    // Parse command-line arguments
+    std::string strategy = argv[1];
+    std::string datafile = argv[2];
 
-    return EXIT_SUCCESS;
-}
+    // Set the allocation strategy
+    setStrategy(strategy);
 
-void processAllocations(const std::string &filename) {
-    std::ifstream infile(filename);
-    std::string line;
+    // Initialize the free list
+    initializeFreeList();
 
-    if (!infile) {
-        std::cerr << "Error opening file: " << filename << std::endl;
-        return;
+    // Open the data file
+    std::ifstream file(datafile);
+    if (!file.is_open()) {
+        std::cerr << "Error: Unable to open data file: " << datafile << std::endl;
+        return 1;
     }
 
-    while (std::getline(infile, line)) {
-        std::size_t size;
-        if (line.substr(0, 5) == "alloc") {
-            size = std::stoul(line.substr(6));
-            alloc(size);
-        } else if (line.substr(0, 6) == "dealloc") {
+    std::string operation;
+    std::size_t size;
+
+    // Process the data file
+    while (file >> operation >> size) {
+        if (operation == "alloc") {
+            void *chunk = alloc(size);
+            if (chunk) {
+                std::cout << "Allocated " << size << " bytes at " << chunk << std::endl;
+            }
+        } else if (operation == "dealloc") {
             if (!allocatedList.empty()) {
-                void *chunk = allocatedList.back().space; // Get the last allocated chunk
-                dealloc(chunk);
+                void *lastChunk = allocatedList.back().space; // Get the last allocated chunk
+                dealloc(lastChunk);
+                std::cout << "Deallocated chunk at " << lastChunk << std::endl;
             }
         }
     }
 
-    infile.close();
+    file.close();
+
+    // Print memory lists
+    printMemoryLists();
+
+    return 0;
 }
