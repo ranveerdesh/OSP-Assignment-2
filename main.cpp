@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
             }
         } else if (command == "dealloc") { // Check for deallocation command
             if (!allocatedList.empty()) {
-                void* lastAllocatedChunk = allocatedList.back().space; // Get the last allocated chunk
+                void* lastAllocatedChunk = allocatedList.back().memoryAddress; // Corrected: Get the last allocated chunk
                 dealloc(lastAllocatedChunk); // Deallocate the chunk
                 std::cout << "Deallocated chunk at " << lastAllocatedChunk << std::endl;
             }
