@@ -1,28 +1,28 @@
-#ifndef MEMORY_ALLOCATOR_H
-#define MEMORY_ALLOCATOR_H
+#ifndef ALLOCATOR_H
+#define ALLOCATOR_H
 
 #include <cstddef>
 #include <iostream>
 #include <list>
 #include <string>
 
-// Structure representing a memory allocation
+// Struct for representing memory allocation details
 struct MemoryAllocation {
-    std::size_t totalSize;   // Total size of the allocation
-    std::size_t usedSize;    // Size currently in use
-    void* memoryAddress;      // Pointer to the allocated memory
+    std::size_t totalSize; // Total size of the allocated chunk
+    std::size_t usedSize;  // Currently used size within the chunk
+    void* memoryAddress;    // Address of the allocated memory
 };
 
-// Global variables to manage allocations
-extern std::list<MemoryAllocation> allocatedList; // List of currently allocated memory chunks
-extern std::list<MemoryAllocation> freeList;      // List of available memory chunks
-extern std::string allocationStrategy;             // Current memory allocation strategy
+// Global variables to track allocated and free memory chunks
+extern std::list<MemoryAllocation> allocatedList; // List of currently allocated chunks
+extern std::list<MemoryAllocation> freeList;      // List of available free chunks
+extern std::string currentStrategy;                // Current memory allocation strategy
 
-// Function prototypes for memory management
-void* alloc(std::size_t requestedSize);            // Allocate memory of the specified size
-void dealloc(void* chunk);                         // Deallocate previously allocated memory
-void setStrategy(const std::string& strategy);     // Set the memory allocation strategy
-void initializeFreeList();                         // Initialize the list of free memory chunks
-void printMemoryLists();                           // Print the state of allocated and free memory
+// Function prototypes
+void* alloc(std::size_t chunk_size);               // Allocate memory
+void dealloc(void* chunk);                         // Deallocate memory
+void setStrategy(const std::string& strategy);     // Set memory allocation strategy
+void initializeFreeList();                         // Initialize the free list
+void printMemoryLists();                           // Print allocated and free memory lists
 
-#endif // MEMORY_ALLOCATOR_H
+#endif // ALLOCATOR_H

@@ -3,54 +3,60 @@
 #include <string>
 #include "allocator.h"
 
-// Entry point of the memory allocator program
-int main(int argc, char* argv[]) {
-    // Validate the number of command-line arguments
+int main(int argc, char *argv[]) {
+    // Ensure the correct number of command-line arguments is provided
     if (argc != 3) {
-        std::cerr << "Usage: " << argv[0] << " <allocation_strategy> <input_file>" << std::endl;
-        return EXIT_FAILURE; // Return a failure status
+        std::cerr << "Usage: " << argv[0] << " <allocation_strategy> <datafile>" << std::endl;
+        return 1;
     }
 
-    // Extract command-line arguments for allocation strategy and input file
+    // Retrieve command-line arguments for strategy and data file
     std::string allocationStrategy = argv[1];
-    std::string inputFileName = argv[2];
+    std::string dataFileName = argv[2];
 
-    // Set the allocation strategy based on user input
+    // Set the memory allocation strategy based on the provided argument
     setStrategy(allocationStrategy);
 
-    // Initialize the list of free memory chunks
+    // Initialize the free memory list
     initializeFreeList();
 
-    // Open the specified input data file
-    std::ifstream inputFile(inputFileName);
-    if (!inputFile.is_open()) {
-        std::cerr << "Error: Could not open input file: " << inputFileName << std::endl;
-        return EXIT_FAILURE; // Return a failure status
+    // Open the specified data file for reading
+    std::ifstream dataFile(dataFileName);
+    if (!dataFile.is_open()) {
+        std::cerr << "Error: Unable to open data file: " << dataFileName << std::endl;
+        return 1;
     }
 
-    std::string command; // Command for allocation or deallocation
-    std::size_t size;    // Size for memory allocation
+    std::string operation;
+    std::size_t size;
 
-    // Process commands from the input file
-    while (inputFile >> command >> size) {
-        if (command == "alloc") { // Check for allocation command
-            void* allocatedMemory = alloc(size);
-            if (allocatedMemory) {
-                std::cout << "Allocated " << size << " bytes at " << allocatedMemory << std::endl;
+    // Process commands from the data file
+    while (dataFile >> operation >> size) {
+        if (operation == "alloc") {
+            // Attempt to allocate memory of the specified size
+            void* allocatedChunk = alloc(size);
+            if (allocatedChunk) {
+                std::cout << "Allocated " << size << " bytes at address " << allocatedChunk << std::endl;
+            } else {
+                std::cerr << "Allocation failed for " << size << " bytes." << std::endl;
             }
-        } else if (command == "dealloc") { // Check for deallocation command
+        } else if (operation == "dealloc") {
+            // Deallocate the last allocated chunk, if it exists
             if (!allocatedList.empty()) {
-                void* lastAllocatedChunk = allocatedList.back().memoryAddress; // Corrected: Get the last allocated chunk
-                dealloc(lastAllocatedChunk); // Deallocate the chunk
-                std::cout << "Deallocated chunk at " << lastAllocatedChunk << std::endl;
+                void* lastAllocatedChunk = allocatedList.back().memoryAddress; // Get the last allocated chunk
+                dealloc(lastAllocatedChunk);
+                std::cout << "Deallocated chunk at address " << lastAllocatedChunk << std::endl;
+            } else {
+                std::cerr << "No allocated chunks to deallocate." << std::endl;
             }
         }
     }
 
-    inputFile.close(); // Close the input file
+    // Close the data file after processing
+    dataFile.close();
 
-    // Print the current state of the allocated and free memory lists
+    // Print the current memory lists for debugging
     printMemoryLists();
 
-    return EXIT_SUCCESS; // Return a success status
+    return 0;
 }
