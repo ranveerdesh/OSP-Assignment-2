@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <unistd.h>
+#include <algorithm> // Include this for std::find_if
 
 enum AllocationStrategy {
     FIRST_FIT,
