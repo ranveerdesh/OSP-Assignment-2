@@ -1,33 +1,26 @@
-# Compiler
 CXX = g++
+CXXFLAGS = -Wall -Werror -std=c++11
 
-# Compiler flags
-CXXFLAGS = -Wall -Werror -std=c++14
+# Target executables
+TARGETS = firstfit bestfit
 
 # Source files
-SRC = main.cpp allocator.cpp
+SOURCES = main.cpp allocator.cpp
 
 # Object files
-OBJ = $(SRC:.cpp=.o)
+OBJECTS = $(SOURCES:.cpp=.o)
 
-# Executables
-EXEC_FIRSTFIT = firstfit
-EXEC_BESTFIT = bestfit
+# Make all targets
+all: $(TARGETS)
 
-# Default target
-all: $(EXEC_FIRSTFIT) $(EXEC_BESTFIT)
+# Rule for firstfit
+firstfit: $(OBJECTS)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJECTS)
 
-# Build firstfit
-$(EXEC_FIRSTFIT): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+# Rule for bestfit
+bestfit: $(OBJECTS)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJECTS)
 
-# Build bestfit
-$(EXEC_BESTFIT): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $^
-
-# Clean up object files and executables
+# Clean up object and executable files
 clean:
-	rm -f $(OBJ) $(EXEC_FIRSTFIT) $(EXEC_BESTFIT)
-
-# Phony targets
-.PHONY: all clean
+	rm -f $(OBJECTS) $(TARGETS)
